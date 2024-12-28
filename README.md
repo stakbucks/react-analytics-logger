@@ -2,8 +2,8 @@
 This package provides a flexible and extensible analytics logging system(e.g. GA, Amplitude) designed to handle various types of events and context management in your application. It is built with TypeScript, ensuring type safety and ease of integration.
 It also supports,
 
-1. Both declarative and imperative APIs, allowing developers to choose the style that best fits their needs.
-2. Offers type-safe React components and hooks through the `createConfig` function, ensuring seamless integration and robust type checking in your React applications. It is built with TypeScript, ensuring type safety and ease of integration.
+1. Both **declarative and imperative** APIs, allowing developers to choose the style that best fits their needs.
+2. Offers **type-safe** React components and hooks through the `createConfig` function, ensuring seamless integration and robust type checking in your React applications. It is built with TypeScript, ensuring type safety and ease of integration.
 
 ## Installing
 Using npm:
