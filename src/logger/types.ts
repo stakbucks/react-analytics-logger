@@ -8,7 +8,7 @@ export interface MountOptions {
 type InitFunction<C> = (initialContext: C) => void;
 type EventFunction<P, C> = (params: P, context?: C) => void;
 type ImpressionFunction<P, C> = (params: P, context?: C) => void;
-type PageViewFunction<P, C> = (params?: P, context?: C) => void;
+type PageViewFunction<P, C> = (params: P, context?: C) => void;
 type SetContextFunction<C> = (context: C) => C;
 
 export interface LoggerConfig<Context, ClickParams, ImpressionParams, PageViewParams> {
