@@ -3,6 +3,12 @@
   "version": "0.0.0",
   "license": "MIT",
   "author": "stakbucks",
+  "description": "A simple package for logging analytics in React applications",
+  "scripts": {
+    "build": "pnpm build:js && pnpm build:ts",
+    "build:js": "node build.js",
+    "build:ts": "pnpm tsc --emitDeclarationOnly"
+  },
   "repository": {
     "type": "git"
   },
@@ -17,15 +23,9 @@
     }
   },
   "files": [
-    "dist",
-    "types"
+    "dist"
   ],
   "type": "module",
-  "scripts": {
-    "build": "pnpm build:js && pnpm build:ts",
-    "build:js": "node build.js",
-    "build:ts": "pnpm tsc --emitDeclarationOnly"
-  },
   "keywords": [
     "react",
     "analytics",
