@@ -3,8 +3,8 @@ This package provides a flexible and extensible analytics logging system(e.g. GA
 
 It mainly supports,
 1. Both declarative and imperative APIs, allowing developers to choose the style that best fits their needs.
-2. Offers type-safe React components and hooks through the `createConfig` function by using JavaScript closure, ensuring seamless integration and robust type checking in your React applications.
-3. Clearly defines a layer for injecting dependencies related to analytics tools, facilitating easy integration and management of analytics within your application.
+2. Offers type-safe React components and hooks through the `createConfig` function by using JavaScript closure.
+3. Clearly defines a layer for injecting dependencies related to analytics tools.
 
 ## Installing
 Using npm:
