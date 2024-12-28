@@ -17,14 +17,9 @@ import { useIntersectionObserver } from "./hooks/useIntersectionObserver";
 import { useMergeRefs } from "./hooks/useMergeRefs";
 import type { LoggerConfig, LoggerContextProps, PrivateLoggerContextProps } from "./types";
 
-export const createLogger = <
-  Context extends Object = {},
-  EventParams extends Object = {},
-  ImpressionParams extends Object = {},
-  PageViewParams extends Object = {},
->(
+export function createLogger<Context, EventParams, ImpressionParams, PageViewParams>(
   config: LoggerConfig<Context, EventParams, ImpressionParams, PageViewParams>,
-) => {
+) {
   const PrivateLoggerContext = createContext<null | PrivateLoggerContextProps<Context>>(null);
   const LoggerContext = createContext<null | LoggerContextProps<
     Context,
@@ -42,23 +37,23 @@ export const createLogger = <
   };
 
   const PrivateProvider = ({ children, initialContext }: { children: ReactNode; initialContext?: Context }) => {
-    const contextRef = useRef(initialContext);
+    const contextRef = useRef<Context | undefined>(initialContext);
 
     const _getContext = useCallback(() => {
       return contextRef.current;
     }, [contextRef]);
 
     const _setContext = useCallback(
-      (context: Context | undefined) => {
+      (context?: Context) => {
         contextRef.current = context;
       },
       [contextRef],
     );
 
     return (
-      <PrivateLoggerContext value={useMemo(() => ({ _getContext, _setContext }), [_getContext, _setContext])}>
+      <PrivateLoggerContext.Provider value={useMemo(() => ({ _getContext, _setContext }), [_getContext, _setContext])}>
         {children}
-      </PrivateLoggerContext>
+      </PrivateLoggerContext.Provider>
     );
   };
 
@@ -69,7 +64,7 @@ export const createLogger = <
 
     return (
       <PrivateProvider initialContext={initialContext}>
-        <LoggerContext
+        <LoggerContext.Provider
           value={useMemo(
             () => ({
               logger: config,
@@ -78,7 +73,7 @@ export const createLogger = <
           )}
         >
           {children}
-        </LoggerContext>
+        </LoggerContext.Provider>
       </PrivateProvider>
     );
   };
@@ -166,4 +161,4 @@ export const createLogger = <
     },
     useLogger,
   ] as const;
-};
+}

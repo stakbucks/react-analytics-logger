@@ -5,30 +5,31 @@ export interface MountOptions {
   // TODO: add options
 }
 
-export interface LoggerConfig<
-  Context extends Object = {},
-  ClickParams extends Object = {},
-  ImpressionParams extends Object = {},
-  PageViewParams extends Object = {},
-> {
+type InitFunction<C> = (initialContext: C) => void;
+type EventFunction<P, C> = (params: P, context?: C) => void;
+type ImpressionFunction<P, C> = (params: P, context?: C) => void;
+type PageViewFunction<P, C> = (params?: P, context?: C) => void;
+type SetContextFunction<C> = (context: C) => C;
+
+export interface LoggerConfig<Context, ClickParams, ImpressionParams, PageViewParams> {
   /**
    * @description Initialize the logger with the given context.
    * @param initialContext - The initial context to use for the logger.
    * @returns void
    */
-  init?: (initialContext?: Context) => void;
+  init?: InitFunction<Context>;
   /**
    * @description The events to listen to.
    */
   events: {
     // TODO: add other events
-    onClick?: (params?: ClickParams, context?: Context) => void;
+    onClick?: EventFunction<ClickParams, Context>;
   };
   /**
    * @description The impression event to listen to.
    */
   impression?: {
-    onImpression: (params?: ImpressionParams, context?: Context) => void;
+    onImpression: ImpressionFunction<ImpressionParams, Context>;
     /**
      * TODO: add options
      */
@@ -38,7 +39,7 @@ export interface LoggerConfig<
    * @description The page track event to listen to.
    */
   pageView?: {
-    onView: (params?: PageViewParams, context?: Context) => void;
+    onView: PageViewFunction<PageViewParams, Context>;
     /**
      * TODO: add options
      */
@@ -47,19 +48,14 @@ export interface LoggerConfig<
   /**
    * @description The context setter.
    */
-  setContext?: (context: Context) => Context;
+  setContext?: SetContextFunction<Context>;
 }
 
-export interface LoggerContextProps<
-  Context extends Object = {},
-  ClickParams extends Object = {},
-  ImpressionParams extends Object = {},
-  PageTrackParams extends Object = {},
-> {
+export interface LoggerContextProps<Context, ClickParams, ImpressionParams, PageTrackParams> {
   logger: LoggerConfig<Context, ClickParams, ImpressionParams, PageTrackParams>;
 }
 
-export interface PrivateLoggerContextProps<Context extends Object = {}> {
+export interface PrivateLoggerContextProps<Context = unknown> {
   _getContext: () => Context | undefined;
   _setContext: (context?: Context) => void;
 }
