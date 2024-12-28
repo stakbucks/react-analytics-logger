@@ -5,7 +5,8 @@
   "author": "stakbucks",
   "description": "A simple package for logging analytics in React applications",
   "scripts": {
-    "build": "pnpm build:js && pnpm build:ts",
+    "clean": "rimraf dist",
+    "build": "pnpm clean && pnpm build:js && pnpm build:ts",
     "build:js": "node scripts/build.js",
     "build:ts": "pnpm tsc --emitDeclarationOnly"
   },
@@ -49,6 +50,7 @@
     "prettier": "^3.4.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "rimraf": "^6.0.1",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.18.2"
   }

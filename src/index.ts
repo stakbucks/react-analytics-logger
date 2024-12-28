@@ -1,1 +1,2 @@
-export { Test } from "./Test";
+export * from "./logger";
+export * from "./logger/types";
