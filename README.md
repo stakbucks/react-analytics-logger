@@ -77,7 +77,7 @@ export const [GALogger, useGA] = createLogger({
 ```tsx
 import { useState } from "react";
 import "./App.css";
-import { GALogger } from "./gaLogger";
+import { GALogger } from "./logger";
 
 function App() {
   const [count, setCount] = useState(0);
