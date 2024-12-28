@@ -1,12 +1,8 @@
-// @ts-check
-
-/** @type {import('prettier').Config} */
 const config = {
-  semi: false,
-  singleQuote: true,
+  semi: true,
+  singleQuote: false,
   trailingComma: "all",
-  plugins: ["prettier-plugin-svelte"],
-  overrides: [{ files: "*.svelte", options: { parser: "svelte" } }],
+  printWidth: 120,
 };
 
 export default config;
