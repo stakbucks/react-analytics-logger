@@ -28,6 +28,14 @@ export function createLogger<Context, EventParams, ImpressionParams, PageViewPar
     PageViewParams
   >>(null);
 
+  const usePrivateContext = () => {
+    const context = useContext(PrivateLoggerContext);
+    if (context === null) {
+      throw new Error("usePrivateContext must be used within a PrivateLoggerProvider");
+    }
+    return context;
+  };
+
   const useLogger = () => {
     const context = useContext(LoggerContext);
     if (context === null) {
@@ -36,15 +44,15 @@ export function createLogger<Context, EventParams, ImpressionParams, PageViewPar
     return context;
   };
 
-  const PrivateProvider = ({ children, initialContext }: { children: ReactNode; initialContext?: Context }) => {
-    const contextRef = useRef<Context | undefined>(initialContext);
+  const PrivateProvider = ({ children, initialContext }: { children: ReactNode; initialContext: Context }) => {
+    const contextRef = useRef<Context>(initialContext);
 
     const _getContext = useCallback(() => {
       return contextRef.current;
     }, [contextRef]);
 
     const _setContext = useCallback(
-      (context?: Context) => {
+      (context: Context) => {
         contextRef.current = context;
       },
       [contextRef],
@@ -57,7 +65,7 @@ export function createLogger<Context, EventParams, ImpressionParams, PageViewPar
     );
   };
 
-  const Provider = ({ children, initialContext }: { children: ReactNode; initialContext?: Context }) => {
+  const Provider = ({ children, initialContext }: { children: ReactNode; initialContext: Context }) => {
     if (initialContext !== undefined) {
       config.init?.(initialContext);
     }
@@ -81,13 +89,14 @@ export function createLogger<Context, EventParams, ImpressionParams, PageViewPar
   const Click = ({ children, params }: { children: ReactNode; params: EventParams }) => {
     const child = Children.only(children);
     const { logger } = useLogger();
+    const { _getContext } = usePrivateContext();
 
     return (
       isValidElement<{ onClick?: (...args: any[]) => void }>(child) &&
       cloneElement(child, {
         onClick: (...args: any[]) => {
           if (logger.events.onClick !== undefined) {
-            logger.events.onClick(params);
+            logger.events.onClick(params, _getContext());
           }
           if (child.props && typeof child.props["onClick"] === "function") {
             return child.props["onClick"](...args);
@@ -107,6 +116,8 @@ export function createLogger<Context, EventParams, ImpressionParams, PageViewPar
     // options: ImpressionOptions;
   }) => {
     const { logger } = useLogger();
+    const { _getContext } = usePrivateContext();
+
     const { isIntersecting, ref: impressionRef } = useIntersectionObserver({
       threshold: 0.5,
     });
@@ -119,8 +130,8 @@ export function createLogger<Context, EventParams, ImpressionParams, PageViewPar
       if (!isIntersecting || logger.impression === undefined) {
         return;
       }
-      logger.impression.onImpression(params);
-    }, [isIntersecting, logger.impression, params]);
+      logger.impression.onImpression(params, _getContext());
+    }, [isIntersecting, logger.impression, params, _getContext]);
 
     return hasRef ? (
       cloneElement(child as any, {
@@ -135,19 +146,20 @@ export function createLogger<Context, EventParams, ImpressionParams, PageViewPar
 
   const PageView = (params: PageViewParams) => {
     const { logger } = useLogger();
+    const { _getContext } = usePrivateContext();
     useEffect(() => {
-      logger.pageView?.onView?.(params);
-    }, [logger.pageView, params]);
+      logger.pageView?.onView?.(params, _getContext());
+    }, [logger.pageView, params, _getContext]);
     return null;
   };
 
   const SetContext = (context: Context) => {
     const { logger } = useLogger();
-    const privateContext = useContext(PrivateLoggerContext);
+    const { _setContext } = usePrivateContext();
 
     useEffect(() => {
-      if (logger.setContext !== undefined) privateContext?._setContext(logger.setContext(context));
-    }, [logger.setContext, logger, privateContext, context]);
+      if (logger.setContext !== undefined) _setContext(logger.setContext(context));
+    }, [logger.setContext, logger, context, _setContext]);
     return null;
   };
 

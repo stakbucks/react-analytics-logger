@@ -6,9 +6,9 @@ export interface MountOptions {
 }
 
 type InitFunction<C> = (initialContext: C) => void;
-type EventFunction<P, C> = (params: P, context?: C) => void;
-type ImpressionFunction<P, C> = (params: P, context?: C) => void;
-type PageViewFunction<P, C> = (params: P, context?: C) => void;
+type EventFunction<P, C> = (params: P, context: C) => void;
+type ImpressionFunction<P, C> = (params: P, context: C) => void;
+type PageViewFunction<P, C> = (params: P, context: C) => void;
 type SetContextFunction<C> = (context: C) => C;
 
 export interface LoggerConfig<Context, ClickParams, ImpressionParams, PageViewParams> {
@@ -56,6 +56,6 @@ export interface LoggerContextProps<Context, ClickParams, ImpressionParams, Page
 }
 
 export interface PrivateLoggerContextProps<Context = unknown> {
-  _getContext: () => Context | undefined;
-  _setContext: (context?: Context) => void;
+  _getContext: () => Context;
+  _setContext: (context: Context) => void;
 }
