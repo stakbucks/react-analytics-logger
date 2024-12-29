@@ -8,7 +8,8 @@
     "clean": "rimraf dist",
     "build": "pnpm clean && pnpm build:js && pnpm build:ts",
     "build:js": "node scripts/build.js",
-    "build:ts": "pnpm tsc --emitDeclarationOnly"
+    "build:ts": "pnpm tsc --emitDeclarationOnly",
+    "release": "pnpm build && npm publish"
   },
   "repository": {
     "type": "git"
