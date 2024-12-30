@@ -70,14 +70,11 @@ export interface LoggerConfig<Context, SendParams, EventParams, ImpressionParams
   /**
    * The context setter.
    */
-  setContext?: SetContextFunction<Context>;
+  // setContext?: SetContextFunction<Context>;
 }
 
 export interface LoggerContextProps<Context, SendParams, EventParams, ImpressionParams, PageTrackParams> {
   logger: LoggerConfig<Context, SendParams, EventParams, ImpressionParams, PageTrackParams>;
-}
-
-export interface PrivateLoggerContextProps<Context = unknown> {
+  _setContext: (context: Context | ((prevContext: Context) => Context)) => void;
   _getContext: () => Context;
-  _setContext: (context: Context) => void;
 }
