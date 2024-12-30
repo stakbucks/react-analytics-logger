@@ -113,7 +113,7 @@ function App() {
           </button>
         </Log.Click>
       </div>
-      <Log.Event type="onFocus" params={{ category: "test", label: "my-input" }>
+      <Log.Event type="onFocus" params={{ category: "test", label: "my-input" }}>
           <input />
       </Log.Event>
       <Log.PageView page="/home" />
