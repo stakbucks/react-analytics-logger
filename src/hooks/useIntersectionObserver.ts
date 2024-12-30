@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 
+/**
+ * @
+ * @see https://usehooks-ts.com/react-hook/use-intersection-observer
+ */
 type State = {
   isIntersecting: boolean;
   entry?: IntersectionObserverEntry;
@@ -10,18 +14,11 @@ type UseIntersectionObserverOptions = {
   rootMargin?: string;
   threshold?: number | number[];
   freezeOnceVisible?: boolean;
-  onChange?: (
-    isIntersecting: boolean,
-    entry: IntersectionObserverEntry,
-  ) => void;
+  onChange?: (isIntersecting: boolean, entry: IntersectionObserverEntry) => void;
   initialIsIntersecting?: boolean;
 };
 
-type IntersectionReturn = [
-  (node?: Element | null) => void,
-  boolean,
-  IntersectionObserverEntry | undefined,
-] & {
+type IntersectionReturn = [(node?: Element | null) => void, boolean, IntersectionObserverEntry | undefined] & {
   ref: (node?: Element | null) => void;
   isIntersecting: boolean;
   entry?: IntersectionObserverEntry;
@@ -42,8 +39,7 @@ export function useIntersectionObserver({
     entry: undefined,
   }));
 
-  const callbackRef =
-    useRef<UseIntersectionObserverOptions["onChange"]>(undefined);
+  const callbackRef = useRef<UseIntersectionObserverOptions["onChange"]>(undefined);
 
   callbackRef.current = onChange;
 
@@ -63,16 +59,11 @@ export function useIntersectionObserver({
 
     const observer = new IntersectionObserver(
       (entries: IntersectionObserverEntry[]): void => {
-        const thresholds = Array.isArray(observer.thresholds)
-          ? observer.thresholds
-          : [observer.thresholds];
+        const thresholds = Array.isArray(observer.thresholds) ? observer.thresholds : [observer.thresholds];
 
         entries.forEach((entry) => {
           const isIntersecting =
-            entry.isIntersecting &&
-            thresholds.some(
-              (threshold) => entry.intersectionRatio >= threshold,
-            );
+            entry.isIntersecting && thresholds.some((threshold) => entry.intersectionRatio >= threshold);
 
           setState({ isIntersecting, entry });
 
@@ -110,23 +101,13 @@ export function useIntersectionObserver({
   const prevRef = useRef<Element | null>(null);
 
   useEffect(() => {
-    if (
-      !ref &&
-      state.entry?.target &&
-      !freezeOnceVisible &&
-      !frozen &&
-      prevRef.current !== state.entry.target
-    ) {
+    if (!ref && state.entry?.target && !freezeOnceVisible && !frozen && prevRef.current !== state.entry.target) {
       prevRef.current = state.entry.target;
       setState({ isIntersecting: initialIsIntersecting, entry: undefined });
     }
   }, [ref, state.entry, freezeOnceVisible, frozen, initialIsIntersecting]);
 
-  const result = [
-    setRef,
-    !!state.isIntersecting,
-    state.entry,
-  ] as IntersectionReturn;
+  const result = [setRef, !!state.isIntersecting, state.entry] as IntersectionReturn;
 
   // Support object destructuring, by adding the specific values.
   result.ref = result[0];

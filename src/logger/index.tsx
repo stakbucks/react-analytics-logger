@@ -13,38 +13,64 @@ import {
   useRef,
 } from "react";
 
-import { useIntersectionObserver } from "./hooks/useIntersectionObserver";
-import { useMergeRefs } from "./hooks/useMergeRefs";
-import type { LoggerConfig, LoggerContextProps, PrivateLoggerContextProps } from "./types";
+import { useIntersectionObserver } from "../hooks/useIntersectionObserver";
+import { useMergeRefs } from "../hooks/useMergeRefs";
 
-export function createLogger<Context, EventParams, ImpressionParams, PageViewParams>(
-  config: LoggerConfig<Context, EventParams, ImpressionParams, PageViewParams>,
+import type {
+  DOMEvents,
+  ImpressionOptions,
+  LoggerConfig,
+  LoggerContextProps,
+  PrivateLoggerContextProps,
+} from "./types";
+
+export function createLogger<Context, SendParams, EventParams, ImpressionParams, PageViewParams>(
+  config: LoggerConfig<Context, SendParams, EventParams, ImpressionParams, PageViewParams>,
 ) {
   const PrivateLoggerContext = createContext<null | PrivateLoggerContextProps<Context>>(null);
   const LoggerContext = createContext<null | LoggerContextProps<
     Context,
+    SendParams,
     EventParams,
     ImpressionParams,
     PageViewParams
   >>(null);
+
+  const usePrivateContext = () => {
+    const context = useContext(PrivateLoggerContext);
+    if (context === null) {
+      throw new Error("usePrivateContext must be used within a PrivateLoggerProvider");
+    }
+    return context;
+  };
 
   const useLogger = () => {
     const context = useContext(LoggerContext);
     if (context === null) {
       throw new Error("useLogger must be used within a LoggerProvider");
     }
-    return context;
+    return {
+      logger: {
+        init: context.logger.init,
+        send: context.logger.send,
+        setContext: context.logger.setContext,
+        ...context.logger.events,
+        // NOTE: hide options from the public API
+        onImpression: context.logger.impression?.onImpression,
+        onPageView: context.logger.pageView?.onPageView,
+      },
+    };
   };
 
-  const PrivateProvider = ({ children, initialContext }: { children: ReactNode; initialContext?: Context }) => {
-    const contextRef = useRef<Context | undefined>(initialContext);
+  const PrivateProvider = ({ children, initialContext }: { children: ReactNode; initialContext: Context }) => {
+    const contextRef = useRef<Context>(initialContext);
 
     const _getContext = useCallback(() => {
       return contextRef.current;
     }, [contextRef]);
 
     const _setContext = useCallback(
-      (context?: Context) => {
+      (context: Context) => {
         contextRef.current = context;
       },
       [contextRef],
@@ -57,7 +83,7 @@ export function createLogger<Context, EventParams, ImpressionParams, PageViewPar
     );
   };
 
-  const Provider = ({ children, initialContext }: { children: ReactNode; initialContext?: Context }) => {
+  const Provider = ({ children, initialContext }: { children: ReactNode; initialContext: Context }) => {
     if (initialContext !== undefined) {
       config.init?.(initialContext);
     }
@@ -78,37 +104,52 @@ export function createLogger<Context, EventParams, ImpressionParams, PageViewPar
     );
   };
 
-  const Click = ({ children, params }: { children: ReactNode; params: EventParams }) => {
+  const Event = ({ children, type, params }: { children: ReactNode; type: keyof DOMEvents; params: EventParams }) => {
     const child = Children.only(children);
     const { logger } = useLogger();
-
+    const { _getContext } = usePrivateContext();
     return (
-      isValidElement<{ onClick?: (...args: any[]) => void }>(child) &&
+      isValidElement<{ [key in keyof DOMEvents]?: (...args: any[]) => void }>(child) &&
       cloneElement(child, {
         onClick: (...args: any[]) => {
-          if (logger.events.onClick !== undefined) {
-            logger.events.onClick(params);
+          if (logger?.[type] !== undefined) {
+            logger?.[type]?.(params, _getContext());
           }
-          if (child.props && typeof child.props["onClick"] === "function") {
-            return child.props["onClick"](...args);
+          if (child.props && typeof child.props?.[type] === "function") {
+            return child.props[type]?.(...args);
           }
         },
       })
     );
   };
 
+  const Click = ({ children, params }: { children: ReactNode; params: EventParams }) => {
+    return (
+      <Event type="onClick" params={params}>
+        {children}
+      </Event>
+    );
+  };
+
   const Impression = ({
     children,
     params,
-    // options,
+    options,
   }: {
     children: ReactNode;
     params: ImpressionParams;
-    // options: ImpressionOptions;
+    options: ImpressionOptions;
   }) => {
     const { logger } = useLogger();
+    const { _getContext } = usePrivateContext();
+
     const { isIntersecting, ref: impressionRef } = useIntersectionObserver({
-      threshold: 0.5,
+      ...(options ??
+        config.impression?.options ?? {
+          threshold: 0.1,
+          freezeOnceVisible: false,
+          initialIsIntersecting: false,
+        }),
     });
 
     const child = Children.only(children);
@@ -116,11 +157,11 @@ export function createLogger<Context, EventParams, ImpressionParams, PageViewPar
     const ref = useMergeRefs<HTMLDivElement>(hasRef ? [(child as any).ref, impressionRef] : [impressionRef]);
 
     useEffect(() => {
-      if (!isIntersecting || logger.impression === undefined) {
+      if (!isIntersecting || logger.onImpression === undefined) {
         return;
       }
-      logger.impression.onImpression(params);
-    }, [isIntersecting, logger.impression, params]);
+      logger.onImpression?.(params, _getContext());
+    }, [isIntersecting, logger, params, _getContext]);
 
     return hasRef ? (
       cloneElement(child as any, {
@@ -135,19 +176,20 @@ export function createLogger<Context, EventParams, ImpressionParams, PageViewPar
 
   const PageView = (params: PageViewParams) => {
     const { logger } = useLogger();
+    const { _getContext } = usePrivateContext();
     useEffect(() => {
-      logger.pageView?.onView?.(params);
-    }, [logger.pageView, params]);
+      logger?.onPageView?.(params, _getContext());
+    }, [logger, params, _getContext]);
     return null;
   };
 
   const SetContext = (context: Context) => {
     const { logger } = useLogger();
-    const privateContext = useContext(PrivateLoggerContext);
+    const { _setContext } = usePrivateContext();
 
     useEffect(() => {
-      if (logger.setContext !== undefined) privateContext?._setContext(logger.setContext(context));
-    }, [logger.setContext, logger, privateContext, context]);
+      if (logger.setContext !== undefined) _setContext(logger.setContext(context));
+    }, [logger, context, _setContext]);
     return null;
   };
 

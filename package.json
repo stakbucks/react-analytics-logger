@@ -1,6 +1,6 @@
 {
   "name": "react-analytics-logger",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "license": "MIT",
   "author": "stakbucks",
   "description": "A simple package for logging analytics in React applications",
@@ -11,6 +11,7 @@
     "build:ts": "pnpm tsc --emitDeclarationOnly",
     "test": "vitest --run",
     "test:watch": "vitest"
+    "release": "pnpm build && npm publish"
   },
   "repository": {
     "type": "git"

@@ -1,9 +1,18 @@
-# react-analytics-logger
-This package provides a flexible and extensible analytics logging system(e.g. GA, Amplitude) designed to handle various types of events and context management in your application. It is built with TypeScript, ensuring type safety and ease of integration.
-It also supports,
+<p align='center'>
+<img src='https://github.com/user-attachments/assets/80989807-139e-41aa-8c3f-5d32e53dcac0' width=600 height=314 />
+</p>
 
-1. Both declarative and imperative APIs, allowing developers to choose the style that best fits their needs.
-2. Offers type-safe React components and hooks through the `createConfig` function, ensuring seamless integration and robust type checking in your React applications. It is built with TypeScript, ensuring type safety and ease of integration.
+
+# react-analytics-logger
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/toss/slash/blob/main/LICENSE) 
+[![NPM badge](https://img.shields.io/npm/v/react-analytics-logger?logo=npm)](https://www.npmjs.com/package/react-analytics-logger) 
+
+This package provides a flexible and extensible analytics logging system(e.g. GA, Amplitude) designed to handle various types of events and context management in your application. It is built with TypeScript, ensuring type safety and ease of integration.
+
+## Main Features
+1. Supports both declarative and imperative APIs, allowing developers to choose the style that best fits their needs.
+2. Offers type-safe React components and hooks through the `createConfig` function by using JavaScript closure.
+3. Clearly defines a layer for injecting dependencies related to analytics tools.
 
 ## Installing
 Using npm:
@@ -29,6 +38,10 @@ $ pnpm add react-analytics-logger
 import ReactGA from "react-ga4";
 import { createLogger } from "react-analytics-logger";
 
+type SendParams = {
+  hitType:string;
+  [key:string]:string;
+}
 type EventParams = { category: string; label: string; value: number };
 type GAContext = {
   userId: string;
@@ -39,21 +52,33 @@ export const [GALogger, useGA] = createLogger({
   init: () => {
     ReactGA.initialize("(your-ga-id)");
   },
+  send: (params: SendParams , context: GAContext) => {
+    const { hitType, ...rest } = params;
+      ReactGA.send({
+        hitType,
+        ...rest,
+      });
+  },
   events: {
-    onClick: (params: EventParams) => {
+    onClick: (params: EventParams, context: GAContext) => {
       ReactGA.event({
         ...params,
+        ...context,
         action: "click",
       });
     },
   },
   impression: {
-    onImpression: (params: EventParams) => {
+    onImpression: (params: EventParams, context: GAContext) => {
       ReactGA.event({
         ...params,
+        ...context,
         action: "impression",
       });
     },
+    options:{
+      threshold: 0.5,
+    }
   },
   pageView: {
     onView: ({ page }: { page: string }) => {
@@ -73,8 +98,7 @@ export const [GALogger, useGA] = createLogger({
 #### App.tsx
 ```tsx
 import { useState } from "react";
-import "./App.css";
-import { GALogger } from "./gaLogger";
+import { GALogger } from "./logger";
 
 function App() {
   const [count, setCount] = useState(0);
