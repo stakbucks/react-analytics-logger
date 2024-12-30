@@ -37,22 +37,13 @@ $ pnpm add react-analytics-logger
 ```tsx
 import ReactGA from "react-ga4";
 import { createLogger } from "react-analytics-logger";
+import { SendParams, EventParams, GAContext, ImpressionParams, PageViewParams } from "./types";
 
-type SendParams = {
-  hitType:string;
-  [key:string]:string;
-}
-type EventParams = { category: string; label: string; value?: number };
-type GAContext = {
-  userId: string;
-  clientId: string;
-};
-
-export const [Log, useLog] = createLogger({
+export const [Log, useLog] = createLogger<GAContext, SendParams, EventParams, ImpressionParams, PageViewParams>({
   init: () => {
     ReactGA.initialize("(your-ga-id)");
   },
-  send: (params: SendParams , context: GAContext) => {
+  send: (params, context) => {
     const { hitType, ...rest } = params;
       ReactGA.send({
         hitType,
@@ -60,14 +51,14 @@ export const [Log, useLog] = createLogger({
       });
   },
   events: {
-    onClick: (params: EventParams, context: GAContext) => {
+    onClick: (params, context) => {
       ReactGA.event({
         ...params,
         ...context,
         action: "click",
       });
     },
-    onFocus: (params: EventParams, context: GAContext) => {
+    onFocus: (params, context) => {
       ReactGA.event({
         ...params,
         ...context,
@@ -76,7 +67,7 @@ export const [Log, useLog] = createLogger({
     },
   },
   impression: {
-    onImpression: (params: EventParams, context: GAContext) => {
+    onImpression: (params, context) => {
       ReactGA.event({
         ...params,
         ...context,
@@ -88,17 +79,15 @@ export const [Log, useLog] = createLogger({
     }
   },
   pageView: {
-    onView: ({ page }: { page: string }) => {
+    onView: ({ page }) => {
       ReactGA.send({
         hitType: "pageview",
         page,
       });
     },
   },
-  setContext: (context: GAContext) => {
-    return context;
-  },
 });
+
 ```
 
 
