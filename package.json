@@ -10,7 +10,7 @@
     "build:js": "node scripts/build.js",
     "build:ts": "pnpm tsc --emitDeclarationOnly",
     "test": "vitest --run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
     "release": "pnpm build && npm publish"
   },
   "repository": {
