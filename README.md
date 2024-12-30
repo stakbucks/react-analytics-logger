@@ -48,7 +48,7 @@ type GAContext = {
   clientId: string;
 };
 
-export const [GALogger, useGA] = createLogger({
+export const [Log, useLog] = createLogger({
   init: () => {
     ReactGA.initialize("(your-ga-id)");
   },
@@ -105,30 +105,30 @@ export const [GALogger, useGA] = createLogger({
 #### App.tsx
 ```tsx
 import { useState } from "react";
-import { GALogger } from "./logger";
+import { Log } from "./logger";
 
 function App() {
   const [count, setCount] = useState(0);
 
   return (
-    <GALogger.Provider
+    <Log.Provider
       initialContext={{ userId: "USERID", clientId: "CLIENTID" }}
     >
       <h1>React Analytics Logger</h1>
       <div className="card">
-        <GALogger.Click
+        <Log.Click
           params={{ category: "test", label: "count", value: count + 1 }}
         >
           <button onClick={() => setCount((count) => count + 1)}>
             count is {count}
           </button>
-        </GALogger.Click>
+        </Log.Click>
       </div>
-      <GALogger.Event type="onFocus" params={{ category: "test", label: "my-input" }>
+      <Log.Event type="onFocus" params={{ category: "test", label: "my-input" }>
           <input />
-      </GALogger.Event>
-      <GALogger.PageView page="/home" />
-    </GALogger.Provider>
+      </Log.Event>
+      <Log.PageView page="/home" />
+    </Log.Provider>
   );
 }
 
