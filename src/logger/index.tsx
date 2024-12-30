@@ -196,6 +196,7 @@ export function createLogger<Context, SendParams, EventParams, ImpressionParams,
   return [
     {
       Provider,
+      Event,
       Click,
       Impression,
       PageView,
