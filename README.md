@@ -42,7 +42,7 @@ type SendParams = {
   hitType:string;
   [key:string]:string;
 }
-type EventParams = { category: string; label: string; value: number };
+type EventParams = { category: string; label: string; value?: number };
 type GAContext = {
   userId: string;
   clientId: string;
@@ -65,6 +65,13 @@ export const [GALogger, useGA] = createLogger({
         ...params,
         ...context,
         action: "click",
+      });
+    },
+    onFocus: (params: EventParams, context: GAContext) => {
+      ReactGA.event({
+        ...params,
+        ...context,
+        action: "focus",
       });
     },
   },
@@ -117,9 +124,9 @@ function App() {
           </button>
         </GALogger.Click>
       </div>
-      <p className="read-the-docs">
-        Click to learn more
-      </p>
+      <GALogger.Event type="onFocus" params={{ category: "test", label: "my-input" }>
+          <input />
+      </GALogger.Event>
       <GALogger.PageView page="/home" />
     </GALogger.Provider>
   );
