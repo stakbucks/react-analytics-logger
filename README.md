@@ -1,4 +1,12 @@
+<p align='center'>
+<img src='https://github.com/user-attachments/assets/80989807-139e-41aa-8c3f-5d32e53dcac0' width=600 height=314 />
+</p>
+
+
 # react-analytics-logger
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/toss/slash/blob/main/LICENSE) 
+[![NPM badge](https://img.shields.io/npm/v/react-analytics-logger?logo=npm)](https://www.npmjs.com/package/react-analytics-logger) 
+
 This package provides a flexible and extensible analytics logging system(e.g. GA, Amplitude) designed to handle various types of events and context management in your application. It is built with TypeScript, ensuring type safety and ease of integration.
 
 ## Main Features
