@@ -111,6 +111,7 @@ export function createLogger<Context, SendParams, EventParams, ImpressionParams,
     return (
       isValidElement<{ [key in keyof DOMEvents]?: (...args: any[]) => void }>(child) &&
       cloneElement(child, {
+        ...child.props,
         onClick: (...args: any[]) => {
           if (logger?.[type] !== undefined) {
             logger?.[type]?.(params, _getContext());
@@ -138,7 +139,7 @@ export function createLogger<Context, SendParams, EventParams, ImpressionParams,
   }: {
     children: ReactNode;
     params: ImpressionParams;
-    options: ImpressionOptions;
+    options?: ImpressionOptions;
   }) => {
     const { logger } = useLogger();
     const { _getContext } = usePrivateContext();
