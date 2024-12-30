@@ -1,9 +1,23 @@
 import { DOMAttributes } from "react";
 
 export interface ImpressionOptions {
-  // TODO: add options
+  /**
+   * A threshold indicating the percentage of the target's visibility needed to trigger the callback
+   * @default 0.1
+   */
+  threshold?: number;
+  /**
+   * If true, freezes the intersection state once the element becomes visible.
+   * @default false
+   */
+  freezeOnceVisible?: boolean;
+  /**
+   * The initial state of the intersection.
+   * @default false
+   */
+  initialIsIntersecting?: boolean;
 }
-export interface MountOptions {
+export interface PageViewOptions {
   // TODO: add options
 }
 
@@ -27,34 +41,31 @@ export interface LoggerConfig<Context, SendParams, EventParams, ImpressionParams
    * @param initialContext - The initial context to use for the logger.
    * @returns void
    */
-  init?: InitFunction<Context>;
+  readonly init?: InitFunction<Context>;
   /**
    * The send function to send the event.
    */
-  send?: SendFunction<SendParams, Context>;
+  readonly send?: SendFunction<SendParams, Context>;
   /**
    * The events to listen to.
    */
-  events?: Events<EventParams, Context>;
+  readonly events?: Events<EventParams, Context>;
   /**
    * The impression event to listen to.
    */
   impression?: {
     onImpression: ImpressionFunction<ImpressionParams, Context>;
-    /**
-     * TODO: add options
-     */
-    // options?: ImpressionOptions;
+    options?: ImpressionOptions;
   };
   /**
    * The page track event to listen to.
    */
   pageView?: {
-    onView: PageViewFunction<PageViewParams, Context>;
+    onPageView: PageViewFunction<PageViewParams, Context>;
     /**
      * TODO: add options
      */
-    // options?: MountOptions;
+    // options?: PageViewOptions;
   };
   /**
    * The context setter.

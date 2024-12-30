@@ -30,6 +30,10 @@ $ pnpm add react-analytics-logger
 import ReactGA from "react-ga4";
 import { createLogger } from "react-analytics-logger";
 
+type SendParams = {
+  hitType:string;
+  [key:string]:string;
+}
 type EventParams = { category: string; label: string; value: number };
 type GAContext = {
   userId: string;
@@ -39,6 +43,13 @@ type GAContext = {
 export const [GALogger, useGA] = createLogger({
   init: () => {
     ReactGA.initialize("(your-ga-id)");
+  },
+  send: (params: SendParams , context: GAContext) => {
+    const { hitType, ...rest } = params;
+      ReactGA.send({
+        hitType,
+        ...rest,
+      });
   },
   events: {
     onClick: (params: EventParams, context: GAContext) => {
@@ -57,6 +68,9 @@ export const [GALogger, useGA] = createLogger({
         action: "impression",
       });
     },
+    options:{
+      threshold: 0.5,
+    }
   },
   pageView: {
     onView: ({ page }: { page: string }) => {
@@ -76,7 +90,6 @@ export const [GALogger, useGA] = createLogger({
 #### App.tsx
 ```tsx
 import { useState } from "react";
-import "./App.css";
 import { GALogger } from "./logger";
 
 function App() {
