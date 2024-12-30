@@ -15,14 +15,15 @@ import {
 
 import { useIntersectionObserver } from "./hooks/useIntersectionObserver";
 import { useMergeRefs } from "./hooks/useMergeRefs";
-import type { LoggerConfig, LoggerContextProps, PrivateLoggerContextProps } from "./types";
+import type { DOMEvents, LoggerConfig, LoggerContextProps, PrivateLoggerContextProps } from "./types";
 
-export function createLogger<Context, EventParams, ImpressionParams, PageViewParams>(
-  config: LoggerConfig<Context, EventParams, ImpressionParams, PageViewParams>,
+export function createLogger<Context, SendParams, EventParams, ImpressionParams, PageViewParams>(
+  config: LoggerConfig<Context, SendParams, EventParams, ImpressionParams, PageViewParams>,
 ) {
   const PrivateLoggerContext = createContext<null | PrivateLoggerContextProps<Context>>(null);
   const LoggerContext = createContext<null | LoggerContextProps<
     Context,
+    SendParams,
     EventParams,
     ImpressionParams,
     PageViewParams
@@ -86,23 +87,30 @@ export function createLogger<Context, EventParams, ImpressionParams, PageViewPar
     );
   };
 
-  const Click = ({ children, params }: { children: ReactNode; params: EventParams }) => {
+  const Event = ({ children, type, params }: { children: ReactNode; type: keyof DOMEvents; params: EventParams }) => {
     const child = Children.only(children);
     const { logger } = useLogger();
     const { _getContext } = usePrivateContext();
-
     return (
-      isValidElement<{ onClick?: (...args: any[]) => void }>(child) &&
+      isValidElement<{ [key in keyof DOMEvents]?: (...args: any[]) => void }>(child) &&
       cloneElement(child, {
         onClick: (...args: any[]) => {
-          if (logger.events.onClick !== undefined) {
-            logger.events.onClick(params, _getContext());
+          if (logger.events?.[type] !== undefined) {
+            logger.events?.[type]?.(params, _getContext());
           }
-          if (child.props && typeof child.props["onClick"] === "function") {
-            return child.props["onClick"](...args);
+          if (child.props && typeof child.props?.[type] === "function") {
+            return child.props[type]?.(...args);
           }
         },
       })
+    );
+  };
+
+  const Click = ({ children, params }: { children: ReactNode; params: EventParams }) => {
+    return (
+      <Event type="onClick" params={params}>
+        {children}
+      </Event>
     );
   };
 

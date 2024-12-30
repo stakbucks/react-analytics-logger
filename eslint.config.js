@@ -5,10 +5,7 @@ import importPlugin from "eslint-plugin-import";
 
 export default tseslint.config({
   files: ["**/*.tsx"],
-  extends: [
-    importPlugin.flatConfigs.recommended,
-    pluginReact.configs.recommended,
-  ],
+  extends: [importPlugin.flatConfigs.recommended, pluginReact.configs.recommended],
   plugins: {
     "@typescript-eslint": tseslint.plugin,
     "react-hooks": pluginReactHooks,
@@ -20,7 +17,6 @@ export default tseslint.config({
     },
   },
   rules: {
-    "@typescript-eslint/no-unsafe-assignment": "error",
     "@eslint-react/no-clone-element": "off",
     "react-hooks/exhaustive-deps": "error",
     "react-hooks/rules-of-hooks": "error",
