@@ -1,6 +1,6 @@
 {
-  "name": "react-analytics-logger",
-  "version": "0.0.6",
+  "name": "logguer",
+  "version": "0.0.7",
   "license": "MIT",
   "author": "stakbucks",
   "description": "A simple package for logging analytics in React applications",
